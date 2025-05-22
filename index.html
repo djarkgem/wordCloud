@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Word Master Cloud</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      //background: #000;
+      font-family: 'Helvetica Neue', sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* 🎥 영상 배경 */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      filter: brightness(0.3); /* 어둡게 조절해 텍스트 강조 */
+    }
+
+    #container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      pointer-events: none; /* 입력창 제외 상호작용 방지 */
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #FFD580;
+      pointer-events: auto;
+    }
+
+    input {
+      padding: 0.8rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      width: 60%;
+      max-width: 400px;
+      text-align: center;
+      pointer-events: auto;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0;
+      transform-origin: center center;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    /* 부유 애니메이션 */
+    @keyframes float {
+      0%   { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+      25%  { transform: translate(10px, -10px) scale(1.02) rotate(0.5deg); }
+      50%  { transform: translate(-10px, 10px) scale(1.01) rotate(-0.5deg); }
+      75%  { transform: translate(8px, -5px) scale(0.98) rotate(0.2deg); }
+      100% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .fade-in {
+      animation: fadeIn 2.5s ease-in-out;
+      animation-fill-mode: forwards;
+    }
+
+    .fade-out {
+      animation: fadeOut 1.5s ease-in-out;
+      animation-fill-mode: forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🎥 배경 영상 -->
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="wordmaster.mp4" type="video/mp4" />
+    브라우저가 video 태그를 지원하지 않습니다.
+  </video>
+
+  <div id="container">
+    <h1>지금 당신의 마음을 담은 단어를 들려주세요</h1>
+    <input type="text" id="wordInput" placeholder="예: 빛, 여운, 자유..." />
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <!-- 반드시 같은 폴더에 wordcloud2.min.js 필요 -->
+  <script src="./wordcloud2.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('canvas');
+      const input = document.getElementById('wordInput');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+let wordList = [
+  ['빛', 10], // KR: light
+  ['Serenity', 9], // EN: calmness
+  ['花火', 8], // JA: fireworks
+  ['星辰', 9], // ZH: stars and constellations
+  ['Amanecer', 8], // ES: sunrise
+  ['Espoir', 9], // FR: hope
+  ['Hoffnung', 8], // DE: hope
+  ['친절', 7], // KR: kindness
+  ['愛情', 9], // ZH: affection
+  ['Amore', 10], // IT: love
+  ['Azadi', 9], // FA/UR: freedom
+  ['Bahagia', 8], // ID: happiness
+  ['เสน่ห์', 8], // TH: charm
+  ['शांति', 9] // HI: peace
+];
+
+
+
+      function drawCloud() {
+        // 페이드 아웃 먼저
+        canvas.classList.remove('fade-in', 'fade-out');
+        void canvas.offsetWidth;
+        canvas.classList.add('fade-out');
+
+        setTimeout(() => {
+          canvas.classList.remove('fade-out');
+          void canvas.offsetWidth;
+
+          WordCloud(canvas, {
+            list: wordList,
+            gridSize: 10,
+            weightFactor: 15,
+            fontFamily: 'Helvetica Neue, sans-serif',
+            //color: () => `hsl(${Math.random() * 30 + 140}, 30%, ${Math.random() * 30 + 50}%)`,
+            color: () => `hsl(${Math.random() * 10 + 48}, 40%, ${Math.random() * 30 + 58}%)`,
+
+            rotateRatio: 0.4,
+
+            backgroundColor: 'rgba(0,0,0,0.5)',   // 배경색 없음
+
+            shuffle: true
+          });
+
+          canvas.classList.add('fade-in');
+        }, 1500);
+      }
+
+      // 초기 렌더링 + 반복
+      drawCloud();
+      setInterval(drawCloud, 6000);
+
+      // 입력 시 단어 추가
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const word = input.value.trim();
+          if (word) {
+            wordList.push([word, Math.floor(Math.random() * 10) + 5]);
+            input.value = '';
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
