@@ -155,7 +155,7 @@ let wordList = [
           WordCloud(canvas, {
             list: wordList,
             gridSize: 10,
-            weightFactor: 15,
+            weightFactor: window.innerWidth < 500 ? 5 : 10, // 📱 모바일이면 작게
             fontFamily: 'Helvetica Neue, sans-serif',
             //color: () => `hsl(${Math.random() * 30 + 140}, 30%, ${Math.random() * 30 + 50}%)`,
             color: () => `hsl(${Math.random() * 10 + 48}, 40%, ${Math.random() * 30 + 58}%)`,
